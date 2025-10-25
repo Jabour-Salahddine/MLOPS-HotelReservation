@@ -1,0 +1,11 @@
+numpy
+pandas
+scikit-learn
+boto3 # AWS SDK for Python
+#google-cloud-storage
+PyYAML # For reading YAML configuration files
+imbalanced-learn # For handling imbalanced datasets SMOTE TECHNIQUE
+
+lightgbm
+mlflow
+flask
