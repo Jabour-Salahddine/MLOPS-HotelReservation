@@ -70,6 +70,13 @@ pipeline{
             script {
                 echo 'Deploying latest image to AWS ECS Fargate............'
                 sh '''
+                 # Installation de jq si non présent
+                if ! command -v jq &> /dev/null
+                then
+                    echo "jq non trouvé, installation en cours..."
+                    apt-get update -y && apt-get install -y jq
+                fi
+ 
                 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
                 aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
                 aws configure set default.region ${AWS_REGION}
