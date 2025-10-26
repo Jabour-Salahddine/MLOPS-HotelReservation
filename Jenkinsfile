@@ -61,16 +61,47 @@ pipeline{
             }
         }
 
-        
+        stage('Deploy to AWS ECS Fargate') {
+    steps {
+        withCredentials([
+            string(credentialsId: 'aws-access-key', variable: 'AWS_ACCESS_KEY_ID'),
+            string(credentialsId: 'aws-secret-key', variable: 'AWS_SECRET_ACCESS_KEY')
+        ]) {
+            script {
+                echo 'Deploying latest image to AWS ECS Fargate............'
+                sh '''
+                aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                aws configure set default.region ${AWS_REGION}
 
+                # Met à jour la task definition avec la nouvelle image
+                TASK_DEFINITION_NAME="mlops-hotel-task"
+                CLUSTER_NAME="mlops-hotel-cluster"
+                SERVICE_NAME="mlops-hotel-service"
+                IMAGE_URI="${ECR_REPO}:latest"
 
+                # Récupère la définition actuelle et met à jour l'image
+                aws ecs describe-task-definition --task-definition $TASK_DEFINITION_NAME > task-def.json
 
+                jq --arg IMAGE_URI "$IMAGE_URI" '
+                .taskDefinition |
+                del(.revision, .status, .requiresAttributes, .compatibilities, .taskDefinitionArn) |
+                .containerDefinitions[0].image = $IMAGE_URI
+                ' task-def.json > new-task-def.json
 
+                # Enregistre la nouvelle définition de tâche
+                aws ecs register-task-definition --cli-input-json file://new-task-def.json
 
-        
+                # Force ECS à redéployer avec la nouvelle image
+                aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment
+                '''
+            }
+        }
+    }
     }
 
 
+    }
 
 
 
