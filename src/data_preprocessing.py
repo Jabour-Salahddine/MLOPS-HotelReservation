@@ -30,6 +30,7 @@ class DataProcessing:
             
             logger.info("Dropping useless columns...")
             data.drop(columns=["Booking_ID"], inplace=True)
+            data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
 
             logger.info("Dropping duplicated rows...")
             data.drop_duplicates(inplace=True)
@@ -101,6 +102,10 @@ class DataProcessing:
             selected_features = feature_importance['Feature'].head(num_features).values
             logger.info(f"Selected Features : {selected_features}")
             data_selected = data[selected_features.tolist() + ['booking_status']]
+            
+            logger.info("the first ligne of data after feature selection :")
+            logger.info(f"{data_selected.head(1)}")
+
             return data_selected
         except Exception as e:
             logger.error(f"Error in feature selection: {str(e)}")
@@ -110,7 +115,7 @@ class DataProcessing:
         try : 
             logger.info(f"Saving processed data to {filepath}..."   )
 
-            data.to_csv(filepath,index=False)
+            data.to_csv(filepath,index=False) # index false to avoid saving the index as a column : unnamed
             logger.info("Data saved successfully Hmdolah.")
         except Exception as e:
             logger.error("Error in saving processed data")
