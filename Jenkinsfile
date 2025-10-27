@@ -7,8 +7,17 @@ pipeline{
         ECR_REPO = '973516475461.dkr.ecr.eu-north-1.amazonaws.com/mlops-hotel-repo'
     }
 
+    parameters {
+        choice(
+            name: 'STAGE_TO_RUN',
+            choices: ['ALL', 'CLONE', 'SETUP_VENV', 'BUILD_PUSH', 'DEPLOY','CLONE_DEPLOY'],
+            description: 'Choisissez le stage à exécuter'
+        )
+    }
+
     stages{
         stage('Cloning Github repo to Jenkins'){
+            when { expression { params.STAGE_TO_RUN == 'ALL' || params.STAGE_TO_RUN == 'CLONE' || params.STAGE_TO_RUN == 'CLONE_DEPLOY' } }
             steps{
                 script{
                     echo 'Cloning Github repo to Jenkins............'
@@ -18,6 +27,7 @@ pipeline{
         }
 
         stage('setup of virtual environment and installing dependancies'){
+            when { expression { params.STAGE_TO_RUN == 'ALL' || params.STAGE_TO_RUN == 'SETUP_VENV' } }
             steps{
                 script{
                     echo 'Setting up VE for our dependencies............'
@@ -32,6 +42,7 @@ pipeline{
         }
 
           stage('Build and Push Docker Image to AWS ECR') {
+            when { expression { params.STAGE_TO_RUN == 'ALL' || params.STAGE_TO_RUN == 'BUILD_PUSH' } }
             steps {
                 withCredentials([
                     string(credentialsId: 'aws-access-key', variable: 'AWS_ACCESS_KEY_ID'),
@@ -62,6 +73,7 @@ pipeline{
         }
 
         stage('Deploy to AWS ECS Fargate') {
+    when { expression { params.STAGE_TO_RUN == 'ALL' || params.STAGE_TO_RUN == 'DEPLOY' || params.STAGE_TO_RUN == 'CLONE_DEPLOY' } }
     steps {
         withCredentials([
             string(credentialsId: 'aws-access-key', variable: 'AWS_ACCESS_KEY_ID'),
@@ -99,9 +111,17 @@ pipeline{
 
                 jq --arg IMAGE_URI "$IMAGE_URI" '
                 .taskDefinition |
-                del(.revision, .status, .requiresAttributes, .compatibilities, .taskDefinitionArn) |
-                .containerDefinitions[0].image = $IMAGE_URI
-                ' task-def.json > new-task-def.json
+                | del(
+                            .revision,
+                            .status,
+                            .requiresAttributes,
+                            .compatibilities,
+                            .taskDefinitionArn,
+                            .registeredAt,
+                            .registeredBy
+                          )
+                        | .containerDefinitions[0].image = $IMAGE_URI
+                    ' task-def.json > new-task-def.json
 
                 # Enregistre la nouvelle définition de tâche
                 aws ecs register-task-definition --cli-input-json file://new-task-def.json
