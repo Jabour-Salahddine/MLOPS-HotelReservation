@@ -109,19 +109,7 @@ pipeline{
                 # Récupère la définition actuelle et met à jour l'image
                 aws ecs describe-task-definition --task-definition $TASK_DEFINITION_NAME > task-def.json
 
-                jq --arg IMAGE_URI "$IMAGE_URI" '
-                .taskDefinition |
-                | del(
-                            .revision,
-                            .status,
-                            .requiresAttributes,
-                            .compatibilities,
-                            .taskDefinitionArn,
-                            .registeredAt,
-                            .registeredBy
-                          )
-                        | .containerDefinitions[0].image = $IMAGE_URI
-                    ' task-def.json > new-task-def.json
+                jq --arg IMAGE_URI "$IMAGE_URI" '.taskDefinition | del(.revision, .status, .requiresAttributes, .compatibilities, .taskDefinitionArn, .registeredAt, .registeredBy) | .containerDefinitions[0].image = $IMAGE_URI' task-def.json > new-task-def.json
 
                 # Enregistre la nouvelle définition de tâche
                 aws ecs register-task-definition --cli-input-json file://new-task-def.json
