@@ -102,7 +102,7 @@ pipeline{
 
                 # Met à jour la task definition avec la nouvelle image
                 TASK_DEFINITION_NAME="mlops-hotel-task"
-                CLUSTER_NAME="mlops-hotel-cluster"
+                CLUSTER_NAME="hotel-mlops-cluster"
                 SERVICE_NAME="mlops-hotel-service"
                 IMAGE_URI="${ECR_REPO}:latest"
 
