@@ -70,13 +70,19 @@ pipeline{
             script {
                 echo 'Deploying latest image to AWS ECS Fargate............'
                 sh '''
-                 # Installation de jq si non présent
-                if ! command -v jq &> /dev/null
-                then
-                   echo "jq non trouvé, téléchargement en cours..."
-                   curl -Lo /usr/local/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-                   chmod +x /usr/local/bin/jq
-                fi
+                 # Vérification/installation locale de jq
+                    if ! command -v jq &> /dev/null
+                    then
+                        echo "jq non trouvé, téléchargement local..."
+                        mkdir -p ./bin
+                        curl -Lo ./bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+                        chmod +x ./bin/jq
+                        export PATH=$PATH:./bin
+                    else
+                        echo "jq déjà installé"
+                    fi
+
+                    export PATH=$PATH:./bin
  
                 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
                 aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
