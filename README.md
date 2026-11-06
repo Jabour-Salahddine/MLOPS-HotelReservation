@@ -2,6 +2,7 @@
 ### From reservation data to a trained model, a web form, and a delivery pipeline.
 
 N.B : The project demonstrates the general workflow of a solid machine learning project. However, it may contain some imperfections, such as a potential data leakage issue during the validation phase, before testing. This aspect was taken into consideration in the CI/CD pipeline.
+I'm always happy to discuss this project, other projects in my repositories, or any topic related to AI and Data Science. Feel free to reach out!
 
 A hotel needs to anticipate which reservations may be cancelled before the arrival date. This project trains a cancellation classifier from booking records and exposes a saved LightGBM model through a Flask form. It also defines Jenkins stages for packaging the application, pushing an image to Amazon ECR, and requesting an ECS service rollout.
 
