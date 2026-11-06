@@ -19,6 +19,8 @@ A Random Forest ranks feature importance and selects ten columns. The test frame
 
 Each MLflow run records the processed train/test CSVs, selected model parameters, accuracy, weighted precision, weighted recall, weighted F1, and the saved model artifact. A reviewer can inspect what a run consumed and produced rather than relying on a score copied into a README. The [exploration notebook](notebook/mlops-hotelReservation.ipynb) shows the earlier data analysis and model-selection work.
 
+**Notebook context.** The notebook records the experimentation phase, including steps refined in the pipeline implementation. For example, it applies SMOTE before splitting the data, while the [training pipeline](pipline/training_pipline.py) splits first and [preprocessing](src/data_preprocessing.py) resamples only the training set. Use these scripts as the reference for the implemented workflow.
+
 ### 3. Separate the prediction interface from delivery automation
 
 [Flask](app.py) loads `artifacts/model/LGBM_model.pkl` and renders the prediction in the [booking form](templates/index.html). The [Jenkinsfile](Jenkinsfile) defines selectable stages for checkout, environment setup, ECR image build/push, and ECS deployment commands. This connects the model artifact to an application and an explicit delivery workflow.
