@@ -1,6 +1,8 @@
 # Hotel Cancellation Predictor
 ### From reservation data to a trained model, a web form, and a delivery pipeline.
 
+N.B : The project demonstrates the general workflow of a solid machine learning project. However, it may contain some imperfections, such as a potential data leakage issue during the validation phase, before testing. This aspect was taken into consideration in the CI/CD pipeline.
+
 A hotel needs to anticipate which reservations may be cancelled before the arrival date. This project trains a cancellation classifier from booking records and exposes a saved LightGBM model through a Flask form. It also defines Jenkins stages for packaging the application, pushing an image to Amazon ECR, and requesting an ECS service rollout.
 
 **Try the booking workflow:** enter a lead time of 30 days, one special request, a room price of 100, and a stay of two week nights plus one weekend night. Select an arrival date, market segment, room type, and meal plan, then click **Predict**. The interface displays a cancellation or non-cancellation label. This is a classification example, not a guaranteed booking outcome; see the input contract below before interpreting form results.
